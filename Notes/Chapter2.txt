@@ -1,0 +1,51 @@
+XAML - Extensible Application Markup Language
+=============================================
+
+XAML is compiled into BAML (Binary Application Markup Language) when you compile your WPF application. That BAML code is then embedded in your assembly. This allows to XAML to be tokenized and parse faster at runtime.
+
+XAML Basics
+===========
+- Every element in a XAML document maps to a .NET class. The names match EXACTLY.
+- You can nest an element inside another. Usually expresses containment.
+- Class properties are set via attributes. (or sometimes nested tags with special syntax).
+Bare bones XML:
+<Window x:Class="WindowsApplication1.Window1"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	Title="Window1" Height="300" Width="300">
+	<Grid>
+	</Grid>
+</Window>
+Top-level WPF elements: Window, Page, or Application. WPF must have only one top-level element.
+Title, Width, and Height attributes of the Window element correspond to class properties.
+XML namespaces are declared in attributes. All namespaces needed should be declared in the first tag and then used throughout the document. "xmlns" is a specialized attribute for declaring XML namespaces.
+"http://schemas.microsoft.com/winfx/2006/xaml/presentation" is the core WPF namespace. Contains all WPF classes for building user interfaces. Declared without a namespace prefix, and is therefore the default namespace.
+"http://schemas.microsoft.com/winfx/2006/xaml" is the XAML namespace. Includes various XAML utility features. Mapped to the prefix "x" (<x:ElementName>).
+XML namespaces are URIs here to avoid inadvertent namespace doubling. Also, this allows dozens of .NET namespaces to be encompassed in one XML namespace to be more concise (Also there are no repeated class names).
+x:Class is the "code-behind" .NET class. The class is generated automatically at compile time. We can write our own partial class to be merged in with it. Sample partial class for the above example:
+namespace WindowsApplication1
+{
+	public partial class Window1 : Window
+	{
+		public Window1()
+		{
+			InitializeComponent();
+		}
+	}
+}
+InitializeComponent() is automatically generated at compile time. It needs to be called in your default constructor. Calls the LoadComponent method of System.Windows.Application class. This extracts your BAML and builds the UI and objects.
+You can name elements to interact with the element in code. I.E. <Grid x:Name="grid1"></Grid>. You can use x:Name or Name, they map to the same thing (because of the RuntimeNameProperty attribute on the Name property.
+
+EightBall Example
+=================
+All XML attributes are strings but the class properties can other types. the XAML parser uses .NET type converters for this. (I.E. FontSize="24" is converted to the int 24). It uses the TypeConverter attribute to determine what converter to use (I.E. Foreground is converted to type Brush, which has TypeConverter(typeof(BrushConverter)) on it).
+For complex attributes, we use property-element syntax (I.E. <Grid.Background> element).
+Markup extensions is specialized syntax to set a property in a nonstandard way (I.E. Foreground="{x:Static SystemColors.ActiveCaptionBrush}"). The syntax is {MarkupExtensionClass Argument}. I.E. to use the StaticExtension class, we write x:Static. All markup extensions derive from System.Windows.Markup.MarkupExtension class.
+Attached properties are properties defined in another class. Frequently used to control layout (I.E. Grid.Row="0"). When a control is placed inside a container, it gains additional properties depending on the container. These always use two-part names. These map to static method calls (I.E. Grid.Row="0" calls Grid.SetRow(elementName, 0)).
+When nesting elements, the element can either call IList.Add(), IDictionary.Add(), or sets the child property.
+XML special characters: '<' &lt; '>' &grt; '&' &amp; '"' &quot;
+Use xml:space="preserve" to retain whitespace in your element.
+Events are written as attribute: EventName="EventHandlerMethodName" (I.E. Click="cmdAnswer_Click" maps to cmdAnswer_Click(object sender, RoutedEventArgs e))
+To use a class that isn't a WPF one and map it to XML, you the syntax xmlns:Prefix="clr-namespace:Namespace;assembly=AssemblyName". (I.E. xmlns:sys="clr-namespace:System;assembly=mscorlib").
+You can create WPF applications using only code. This is much more tedious but can be customized better.
+You can load XAML on the fly using XamlReader.
