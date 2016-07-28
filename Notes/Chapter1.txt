@@ -1,0 +1,48 @@
+WPF - Windows Presentation Foundation
+=====================================
+
+Underlying graphics engine for WPF is DirectX (not GDI)
+WPF still uses User32 to an extent (I.E. input routing)
+
+WPF changes for Windows programming
+===================================
+- A web-like layout
+- A rich drawing model
+- A rich text model
+- Animation as a first-class programming concept
+- Support for audio and video media
+- Styles and templates
+- Commands
+- Declarative user interface
+- Page-based applications
+
+Resolution Independence
+=======================
+DPI - dots per inch (or pixels per inch)
+WPF scales well on different DPI settings. It uses the system DPI setting (not the physical display device setting).
+WPF Units - uses device-independent units (defined as 1/96 of an inch). Therefore, on a 96 DPI, each WPF unit is 1 pixel. With 100 DPI, each unit is slightly smaller than a pixel. This scaling is automatic with WPF.
+Vector graphics should be used instead of bitmaps to stay true to system scaling.
+
+WPF Architecture
+================
+.NET objects are translated into Direct3D textures using milcore.dll (unmanaged code for tight DirectX integration).
+PresentationFramework.dll --> Top-level WPF types (I.E. windows, panels, etc.).
+PresentationCore.dll --> Base types, such as UIElement and Visual.
+WindowsBase.dll --> More base types, such as DispatcherObject and DependencyObject.
+milcore.dll --> Foundation for the media integration layer for WPF's rendering system. Translates .NET objects into Direct3D textures (unmanaged code. tight DirectX integration. used by Windows Vista/7/8/10 desktop window manager also).
+WindowsCodecs.dll --> low level API for imaging support
+Direct3D --> low level API for graphics
+User32 --> determine what screen real estate we get, etc. Not used for rendering
+
+Class Hierarchy
+===============
+System.Threading.DispatcherObject --> WPF uses the STA (single-thread affinity) model. This marshals code to the UI thread (and also keyboard messages, etc.)
+System.Windows.DependencyObject --> Onscreen element features, such as change notification and inherited default values
+System.Windows.Media.Visual --> A single drawing object that encapsulates drawing instructions. Every element in a WPF window is a Visual. Maps WPF libs to milcore.dll.
+System.Windows.UIElement --> WPF support for layout, input, focus, events, etc.
+System.Windows.FrameworkElement --> More WPF support like HorizontalAlignment and Margin.
+System.Windows.Shapes.Shape --> Basic shapes, such as Rectangles, Ellipses, Line, etc.
+System.Windows.Controls.Control --> An element that can interact with the user. I.E. TextBox, Button, ListBox.
+System.Windows.Controls.ContentControl --> Controls with 1 piece of content (I.E. Label or Window).
+System.Windows.Controls.ItemsControl --> Controls with a collection of items (I.E. ListBox).
+System.Windows.Controls.Panel --> Base for all layout containers.
